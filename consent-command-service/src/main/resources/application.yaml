@@ -8,3 +8,5 @@ spring:
       ddl-auto: none
   flyway:
     enabled: true
+
+base-url: /api/v1/consent

@@ -1,17 +1,19 @@
-package com.tcc.consent_command_service.application.controller.DTOs.requests;
+package com.tcc.consent_command_service.application.controllers.DTOs.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
-import org.antlr.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Builder
 public class GrantConsentRequest {
     @NotBlank
-    private String titularId;
+    private Long ownerId;
 
     @NotNull
     @Size(min = 1)
@@ -20,8 +22,8 @@ public class GrantConsentRequest {
     @NotBlank
     private String legalBasis;
 
-    private LocalDateTime expiresAt;
+    private LocalDateTime occurredAt;
 
-    @NotBlank
-    private String issuedBy;
+    @NotNull
+    private IssuerRequest issuedBy;
 }

@@ -2,22 +2,22 @@ package com.tcc.consent_command_service.model.consent.enuns;
 
 import java.util.Arrays;
 
-public enum Purpose {
-    PROMOTION("Promoção"),
-    BILLING("Cobrança"),
-    ANALYTICS("Análise"),
-    CUSTOMER_SERVICE("Atendimento");
+public enum IssuerType {
+
+    USER("USER"),
+    OPERATOR("OPERATOR"),
+    SYSTEM("SYSTEM");
 
     private final String description;
 
-    Purpose(String description) {
+    IssuerType(String description) {
         this.description = description;
     }
 
-    public static Purpose of(String value) {
+    public static IssuerType of(String value) {
         return Arrays.stream(values())
                 .filter(v -> v.description.equalsIgnoreCase(value))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Purpose: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid IssuerType: " + value));
     }
 }

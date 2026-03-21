@@ -1,5 +1,7 @@
 package com.tcc.consent_command_service.model.consent.enuns;
 
+import java.util.Arrays;
+
 public enum DataCategory {
     PERSONAL_DATA("Dados Pessoais"),
     CONTRACT_DATA("Dados Contratuais"),
@@ -9,5 +11,12 @@ public enum DataCategory {
 
     DataCategory(String description) {
         this.description = description;
+    }
+
+    public static DataCategory of(String value) {
+        return Arrays.stream(values())
+                .filter(v -> v.description.equalsIgnoreCase(value))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid DataCategory: " + value));
     }
 }

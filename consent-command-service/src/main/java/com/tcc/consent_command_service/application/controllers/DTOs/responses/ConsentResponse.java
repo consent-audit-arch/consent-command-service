@@ -1,4 +1,4 @@
-package com.tcc.consent_command_service.application.controller.DTOs.responses;
+package com.tcc.consent_command_service.application.controllers.DTOs.responses;
 
 import lombok.Builder;
 

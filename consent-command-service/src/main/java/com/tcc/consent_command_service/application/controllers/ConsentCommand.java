@@ -1,7 +1,7 @@
-package com.tcc.consent_command_service.application.controller;
+package com.tcc.consent_command_service.application.controllers;
 
-import com.tcc.consent_command_service.application.controller.DTOs.requests.GrantConsentRequest;
-import com.tcc.consent_command_service.application.controller.DTOs.responses.ConsentResponse;
+import com.tcc.consent_command_service.application.controllers.DTOs.requests.GrantConsentRequest;
+import com.tcc.consent_command_service.application.controllers.DTOs.responses.ConsentResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

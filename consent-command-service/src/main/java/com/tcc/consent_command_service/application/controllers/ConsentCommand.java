@@ -26,13 +26,11 @@ public class ConsentCommand {
 
         log.info("Received grant access request for user: {}", request.getOwnerId());
 
+        grantConsentService.grantConsent(request);
 
-        final ConsentResponse response = grantConsentService.grantConsent(request);
+        log.info("Granted access for user: {}", request.getOwnerId());
 
-        log.info("Granted access for user: {}, in stream id of: {}, eventId: {}",
-                    request.getOwnerId(), response.streamId(), response.eventId());
-
-        return ResponseEntity.ofNullable(response); //Remover ofNullable e colocar só of
+        return ResponseEntity.accepted().build();
     }
 
 }

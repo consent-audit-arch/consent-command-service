@@ -27,7 +27,7 @@ public class ConsentEventJPAEntity {
     private Long version;
 
     @Column(nullable = false)
-    private String userId;
+    private Long userId;
 
     @Column(nullable = false)
     private String eventType;

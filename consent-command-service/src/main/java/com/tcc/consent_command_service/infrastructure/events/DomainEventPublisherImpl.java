@@ -1,4 +1,4 @@
-package com.tcc.consent_command_service.infrastructure.persistence.events;
+package com.tcc.consent_command_service.infrastructure.events;
 
 import com.tcc.consent_command_service.model.consent.events.DomainEvent;
 import com.tcc.consent_command_service.model.consent.events.DomainEventHandler;

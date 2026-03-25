@@ -19,7 +19,7 @@ import java.util.*;
 @AllArgsConstructor
 public class Consent {
 
-    private String id;
+    private String consentId;
     private Long ownerId;
     private Set<ConsentAuthorization> authorizations;
     private LocalDateTime occurredAt;
@@ -47,7 +47,7 @@ public class Consent {
         }
 
         this.domainEvents.add(new ConsentGrantedEvent(
-                this.id, this.ownerId, dataCategory, purpose,
+                this.consentId, this.ownerId, dataCategory, purpose,
                 legalBasis, issuedBy, LocalDateTime.now()
         ));
     }
@@ -73,8 +73,12 @@ public class Consent {
         }
 
         this.domainEvents.add(new ConsentRevokedEvent(
-                this.id, this.ownerId, dataCategory, purpose,
+                this.consentId, this.ownerId, dataCategory, purpose,
                 reason, issuedBy, LocalDateTime.now()
         ));
+    }
+
+    public void clearNewDomainEvents() {
+        this.domainEvents.clear();
     }
 }

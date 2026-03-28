@@ -23,6 +23,7 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
 
     private final ConsentEventJpaRepository eventRepository;
 
+    private final ObjectMapper objectMapper;
 
     @Override
     public void saveEvents(List<DomainEvent> events) {
@@ -38,7 +39,7 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
                         .dataCategory(event.getDataCategory().name())
                         .finality(event.getPurpose().name())
                         .payload(serializeToJson(event))
-                        .issuedBy(event.getIssuedBy().toString())
+                        .issuedBy(serializeToJson(event.getIssuedBy()))
                         .occurredAt(event.getOccurredAt())
                         .createdAt(LocalDateTime.now())
                         .build();
@@ -56,7 +57,7 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
                         .dataCategory(event.getDataCategory().name())
                         .finality(event.getPurpose().name())
                         .payload(serializeToJson(event))
-                        .issuedBy(event.getIssuedBy().toString())
+                        .issuedBy(serializeToJson(event.getIssuedBy()))
                         .occurredAt(event.getOccurredAt())
                         .createdAt(LocalDateTime.now())
                         .build();
@@ -147,7 +148,7 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
 
     private String serializeToJson(Object obj) {
         try {
-            return new ObjectMapper().writeValueAsString(obj);
+            return objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -155,7 +156,7 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
 
     private <T> T deserializeFromJson(String json, Class<T> clazz) {
         try {
-            return new ObjectMapper().readValue(json, clazz);
+            return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

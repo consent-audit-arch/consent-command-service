@@ -1,5 +1,7 @@
 package com.tcc.consent_command_service.model.consent.valueObjects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tcc.consent_command_service.model.consent.enuns.IssuerType;
 import lombok.Builder;
 import lombok.Value;
@@ -8,10 +10,12 @@ import lombok.Value;
 @Builder
 public class Issuer {
 
-    IssuerType issuer;
-    Long id;
+    @JsonProperty("issuer") IssuerType issuer;
+    @JsonProperty("id")     Long id;
 
-    public Issuer(IssuerType issuer, Long id) {
+    @JsonCreator
+    public Issuer(@JsonProperty("issuer") IssuerType issuer,
+                  @JsonProperty("id") Long id) {
         if (issuer == null) {
             throw new IllegalArgumentException("IssuerType não pode ser nulo.");
         }

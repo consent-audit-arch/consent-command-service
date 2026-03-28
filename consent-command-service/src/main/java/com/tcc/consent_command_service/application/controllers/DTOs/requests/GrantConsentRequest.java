@@ -1,18 +1,22 @@
 package com.tcc.consent_command_service.application.controllers.DTOs.requests;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import jakarta.validation.constraints.NotNull;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GrantConsentRequest {
-    @NotBlank
+    @NotNull
     private Long ownerId;
 
     @NotNull

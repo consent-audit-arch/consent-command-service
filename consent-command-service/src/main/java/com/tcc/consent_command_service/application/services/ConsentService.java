@@ -2,7 +2,6 @@ package com.tcc.consent_command_service.application.services;
 
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.ConsentAuthorizationRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.GrantConsentRequest;
-import com.tcc.consent_command_service.application.controllers.DTOs.responses.ConsentResponse;
 import com.tcc.consent_command_service.model.consent.entities.Consent;
 import com.tcc.consent_command_service.model.consent.enuns.DataCategory;
 import com.tcc.consent_command_service.model.consent.enuns.IssuerType;

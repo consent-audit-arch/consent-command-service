@@ -2,6 +2,7 @@ package com.tcc.consent_command_service.infrastructure.persistence.repository.JP
 
 import com.tcc.consent_command_service.infrastructure.persistence.entities.ConsentEventJPAEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,5 +12,9 @@ public interface ConsentEventJpaRepository extends JpaRepository<ConsentEventJPA
 
     List<ConsentEventJPAEntity> findByUserIdOrderByVersion (Long streamId);
 
+    @Query("SELECT MAX(e.version) FROM ConsentEventJPAEntity e WHERE e.streamId = :streamId")
     Long findMaxVersionByStreamId(String streamId);
+
+    ConsentEventJPAEntity findTopByStreamIdAndDataCategoryAndFinalityOrderByVersionDesc(
+            String streamId, String dataCategory, String finality);
 }

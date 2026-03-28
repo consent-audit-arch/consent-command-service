@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "events")
+@Table(name = "event")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,10 +40,13 @@ public class ConsentEventJPAEntity {
     @Column(nullable = false)
     private String finality;
 
-    @Column(columnDefinition = "JSONB", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "payload", columnDefinition = "jsonb", nullable = false)
     private String payload;
 
-    @Column(columnDefinition = "JSONB", nullable = false)
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "issued_by", columnDefinition = "jsonb", nullable = false)
     private String issuedBy;
 
     @Column(nullable = false)

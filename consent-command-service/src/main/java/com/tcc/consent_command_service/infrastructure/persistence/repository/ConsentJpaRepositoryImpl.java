@@ -2,6 +2,7 @@ package com.tcc.consent_command_service.infrastructure.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tcc.consent_command_service.infrastructure.exceptions.OptimisticConcurrencyException;
 import com.tcc.consent_command_service.infrastructure.persistence.entities.ConsentEventJPAEntity;
 import com.tcc.consent_command_service.infrastructure.persistence.repository.JPARepository.ConsentEventJpaRepository;
 import com.tcc.consent_command_service.model.consent.entities.Consent;
@@ -12,6 +13,7 @@ import com.tcc.consent_command_service.model.consent.events.DomainEvent;
 import com.tcc.consent_command_service.model.consent.repositories.ConsentRepository;
 import com.tcc.consent_command_service.model.consent.valueObjects.ConsentAuthorization;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -26,43 +28,18 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void saveEvents(List<DomainEvent> events) {
+    public void saveEvents(List<DomainEvent> events, Long expectedVersion) {
+        long currentVersion = expectedVersion;
+
         for (DomainEvent domainEvent : events) {
+            long versionToSave = ++currentVersion;
 
             if (domainEvent instanceof ConsentGrantedEvent event) {
-
-                ConsentEventJPAEntity eventEntity = ConsentEventJPAEntity.builder()
-                        .streamId(event.getConsentId())
-                        .version(getNextVersion(event.getConsentId()))
-                        .userId(event.getOwnerId())
-                        .eventType("ConsentGranted")
-                        .dataCategory(event.getDataCategory().name())
-                        .finality(event.getPurpose().name())
-                        .payload(serializeToJson(event))
-                        .issuedBy(serializeToJson(event.getIssuedBy()))
-                        .occurredAt(event.getOccurredAt())
-                        .createdAt(LocalDateTime.now())
-                        .build();
-
-                eventRepository.save(eventEntity);
-            }
-
-            else if (domainEvent instanceof ConsentRevokedEvent event) {
-
-                ConsentEventJPAEntity eventEntity = ConsentEventJPAEntity.builder()
-                        .streamId(event.getConsentId())
-                        .version(getNextVersion(event.getConsentId()))
-                        .userId(event.getOwnerId())
-                        .eventType("ConsentRevoked")
-                        .dataCategory(event.getDataCategory().name())
-                        .finality(event.getPurpose().name())
-                        .payload(serializeToJson(event))
-                        .issuedBy(serializeToJson(event.getIssuedBy()))
-                        .occurredAt(event.getOccurredAt())
-                        .createdAt(LocalDateTime.now())
-                        .build();
-
-                eventRepository.save(eventEntity);
+                ConsentEventJPAEntity entity = buildEntity(event, versionToSave);
+                trySave(entity);
+            } else if (domainEvent instanceof ConsentRevokedEvent event) {
+                ConsentEventJPAEntity entity = buildEntity(event, versionToSave);
+                trySave(entity);
             }
         }
     }
@@ -83,9 +60,12 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
             List<ConsentEventJPAEntity> events,
             Long ownerId) {
 
+        long lastVersion = events.getLast().getVersion();
+
         Consent consent = Consent.builder()
                 .consentId(null)
                 .ownerId(ownerId)
+                .version(lastVersion)
                 .authorizations(new HashSet<>())
                 .createdAt(events.getFirst().getCreatedAt())
                 .domainEvents(new ArrayList<>())
@@ -159,6 +139,47 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
             return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private ConsentEventJPAEntity buildEntity(ConsentGrantedEvent event, Long versionToSave) {
+        return ConsentEventJPAEntity.builder()
+                .streamId(event.getConsentId())
+                .version(getNextVersion(event.getConsentId()))
+                .userId(event.getOwnerId())
+                .eventType("ConsentGranted")
+                .dataCategory(event.getDataCategory().name())
+                .finality(event.getPurpose().name())
+                .payload(serializeToJson(event))
+                .issuedBy(serializeToJson(event.getIssuedBy()))
+                .occurredAt(event.getOccurredAt())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+    private ConsentEventJPAEntity buildEntity(ConsentRevokedEvent event, Long versionToSave) {
+        return ConsentEventJPAEntity.builder()
+                .streamId(event.getConsentId())
+                .version(getNextVersion(event.getConsentId()))
+                .userId(event.getOwnerId())
+                .eventType("ConsentRevoked")
+                .dataCategory(event.getDataCategory().name())
+                .finality(event.getPurpose().name())
+                .payload(serializeToJson(event))
+                .issuedBy(serializeToJson(event.getIssuedBy()))
+                .occurredAt(event.getOccurredAt())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+
+    private void trySave(ConsentEventJPAEntity entity) {
+        try {
+            eventRepository.save(entity);
+        } catch (DataIntegrityViolationException e) {
+            throw new OptimisticConcurrencyException(
+                    "Conflito de versão no stream: " + entity.getStreamId() +
+                            " version: " + entity.getVersion()
+            );
         }
     }
 }

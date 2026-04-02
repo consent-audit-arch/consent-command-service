@@ -1,4 +1,4 @@
-package com.tcc.consent_command_service.infrastructure.persistence.handlers;
+package com.tcc.consent_command_service.infrastructure.handlers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

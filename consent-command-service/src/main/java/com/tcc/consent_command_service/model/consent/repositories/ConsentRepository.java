@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ConsentRepository {
 
-    void saveEvents(List<DomainEvent> events);
+    void saveEvents(List<DomainEvent> events, Long expectedVersion);
 
     Consent findByOwnerId(Long ownerId);
 }

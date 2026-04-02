@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +39,7 @@ class ConsentServiceTest {
 
         consentService.grantConsent(GrantConsentRequestFixture.defaultValues());
 
-        verify(consentRepository).saveEvents(anyList());
+        verify(consentRepository).saveEvents(anyList(), anyLong());
         verify(eventPublisher).publishAll(anyList());
     }
 
@@ -46,6 +47,7 @@ class ConsentServiceTest {
     void shouldReuseExistingConsentWhenOwnerAlreadyHasOne() {
         Consent existing = Consent.builder()
                 .consentId(UUID.randomUUID().toString())
+                .version(1L)
                 .ownerId(100L)
                 .authorizations(new HashSet<>())
                 .createdAt(LocalDateTime.now())
@@ -56,7 +58,7 @@ class ConsentServiceTest {
 
         consentService.grantConsent(GrantConsentRequestFixture.defaultValues());
 
-        verify(consentRepository).saveEvents(anyList());
+        verify(consentRepository).saveEvents(anyList(), anyLong());
         verify(eventPublisher).publishAll(anyList());
     }
 }

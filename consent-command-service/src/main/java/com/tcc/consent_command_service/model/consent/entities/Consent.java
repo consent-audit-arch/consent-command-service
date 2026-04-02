@@ -24,6 +24,7 @@ public class Consent {
     private Set<ConsentAuthorization> authorizations;
     private LocalDateTime occurredAt;
     private LocalDateTime createdAt;
+    private Long version;
 
     private List<DomainEvent> domainEvents = new ArrayList<>();
 

@@ -121,11 +121,6 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
         return consent;
     }
 
-    private Long getNextVersion(String streamId) {
-        Long maxVersion = eventRepository.findMaxVersionByStreamId(streamId);
-        return maxVersion == null ? 1L : maxVersion + 1L;
-    }
-
     private String serializeToJson(Object obj) {
         try {
             return objectMapper.writeValueAsString(obj);
@@ -145,7 +140,7 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
     private ConsentEventJPAEntity buildEntity(ConsentGrantedEvent event, Long versionToSave) {
         return ConsentEventJPAEntity.builder()
                 .streamId(event.getConsentId())
-                .version(getNextVersion(event.getConsentId()))
+                .version(versionToSave)
                 .userId(event.getOwnerId())
                 .eventType("ConsentGranted")
                 .dataCategory(event.getDataCategory().name())
@@ -159,7 +154,7 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
     private ConsentEventJPAEntity buildEntity(ConsentRevokedEvent event, Long versionToSave) {
         return ConsentEventJPAEntity.builder()
                 .streamId(event.getConsentId())
-                .version(getNextVersion(event.getConsentId()))
+                .version(versionToSave)
                 .userId(event.getOwnerId())
                 .eventType("ConsentRevoked")
                 .dataCategory(event.getDataCategory().name())

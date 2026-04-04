@@ -65,7 +65,7 @@ public class ConsentCommandServiceIntegrationTest extends AbstractIntegrationTes
     void shouldPersistOutboxEntriesOnGrantConsent() {
         consentService.grantConsent(GrantConsentRequestFixture.defaultValues());
 
-        List<OutboxJpaEntity> outboxEntries = outboxRepository.findByPublishedFalse();
+        List<OutboxJpaEntity> outboxEntries = outboxRepository.findByPublishedFalseOrderByCreatedAtAsc();
 
         assertThat(outboxEntries).hasSize(3);
         assertThat(outboxEntries).allMatch(o -> o.getEventType().equals("ConsentGranted"));
@@ -121,7 +121,7 @@ public class ConsentCommandServiceIntegrationTest extends AbstractIntegrationTes
 
         consentService.revokeConsent(RevokeConsentRequestFixture.defaultValues());
 
-        List<OutboxJpaEntity> outboxEntries = outboxRepository.findByPublishedFalse();
+        List<OutboxJpaEntity> outboxEntries = outboxRepository.findByPublishedFalseOrderByCreatedAtAsc();
 
         assertThat(outboxEntries).hasSize(3);
         assertThat(outboxEntries).allMatch(o -> o.getEventType().equals("ConsentRevoked"));

@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface OutboxJpaRepository extends JpaRepository<OutboxJpaEntity, Long> {
 
-    List<OutboxJpaEntity> findByPublishedFalse();
-
+    List<OutboxJpaEntity> findByPublishedFalseOrderByCreatedAtAsc();
 }

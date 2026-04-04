@@ -8,5 +8,23 @@ spring:
       ddl-auto: none
   flyway:
     enabled: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 1
+
+app:
+  outbox:
+    poll-interval: 5000
+
+outbox:
+  puller:
+    enabled: true
 
 base-url: /api/v1/consent

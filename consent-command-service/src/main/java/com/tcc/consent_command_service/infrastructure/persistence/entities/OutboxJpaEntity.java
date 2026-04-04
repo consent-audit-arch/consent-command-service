@@ -1,16 +1,14 @@
 package com.tcc.consent_command_service.infrastructure.persistence.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "outbox")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

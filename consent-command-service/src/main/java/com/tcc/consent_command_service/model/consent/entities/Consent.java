@@ -48,7 +48,7 @@ public class Consent {
         }
 
         this.domainEvents.add(new ConsentGrantedEvent(
-                this.consentId, this.ownerId, dataCategory, purpose,
+                this.consentId, "ConsentGranted", this.ownerId, dataCategory, purpose,
                 legalBasis, issuedBy, LocalDateTime.now()
         ));
     }
@@ -74,7 +74,7 @@ public class Consent {
         }
 
         this.domainEvents.add(new ConsentRevokedEvent(
-                this.consentId, this.ownerId, dataCategory, purpose,
+                this.consentId, "ConsentRevoked", this.ownerId, dataCategory, purpose,
                 reason, issuedBy, LocalDateTime.now()
         ));
     }

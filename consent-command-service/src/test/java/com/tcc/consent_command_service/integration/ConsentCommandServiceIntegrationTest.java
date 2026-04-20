@@ -69,7 +69,7 @@ public class ConsentCommandServiceIntegrationTest extends AbstractIntegrationTes
 
         assertThat(outboxEntries).hasSize(3);
         assertThat(outboxEntries).allMatch(o -> o.getEventType().equals("ConsentGranted"));
-        assertThat(outboxEntries).allMatch(o -> o.getTopic().equals("consent.granted"));
+        assertThat(outboxEntries).allMatch(o -> o.getTopic().equals("ev-consent"));
         assertThat(outboxEntries).allMatch(o -> !o.getPublished());
     }
 
@@ -125,7 +125,7 @@ public class ConsentCommandServiceIntegrationTest extends AbstractIntegrationTes
 
         assertThat(outboxEntries).hasSize(3);
         assertThat(outboxEntries).allMatch(o -> o.getEventType().equals("ConsentRevoked"));
-        assertThat(outboxEntries).allMatch(o -> o.getTopic().equals("consent.revoked"));
+        assertThat(outboxEntries).allMatch(o -> o.getTopic().equals("ev-consent"));
         assertThat(outboxEntries).allMatch(o -> !o.getPublished());
     }
 

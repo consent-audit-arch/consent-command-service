@@ -23,9 +23,9 @@ public class OutboxHandler implements DomainEventHandler<DomainEvent> {
     @Override
     public void handle(DomainEvent event) {
         if (event instanceof ConsentGrantedEvent e) {
-            save(e.getConsentId(), "ConsentGranted", "consent.granted", e);
+            save(e.getConsentId(), "ConsentGranted", e);
         } else if (event instanceof ConsentRevokedEvent e) {
-            save(e.getConsentId(), "ConsentRevoked", "consent.revoked", e);
+            save(e.getConsentId(), "ConsentRevoked", e);
         }
     }
 
@@ -34,11 +34,11 @@ public class OutboxHandler implements DomainEventHandler<DomainEvent> {
         return DomainEvent.class;
     }
 
-    private void save(String streamId, String eventType, String topic, Object payload) {
+    private void save(String streamId, String eventType, Object payload) {
         outboxRepository.save(OutboxJpaEntity.builder()
                 .streamId(streamId)
                 .eventType(eventType)
-                .topic(topic)
+                .topic("ev-consent")
                 .payload(serializeToJson(payload))
                 .published(false)
                 .createdAt(LocalDateTime.now())

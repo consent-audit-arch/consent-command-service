@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class ConsentRevokedEvent extends DomainEvent {
 
     private final String consentId;
+    private final String eventType;
     private final Long ownerId;
     private final DataCategory dataCategory;
     private final Purpose purpose;
@@ -25,6 +26,7 @@ public class ConsentRevokedEvent extends DomainEvent {
     @JsonCreator
     public ConsentRevokedEvent(
             @JsonProperty("consentId")    String consentId,
+            @JsonProperty("eventType")    String eventType,
             @JsonProperty("ownerId")      Long ownerId,
             @JsonProperty("dataCategory") DataCategory dataCategory,
             @JsonProperty("purpose")      Purpose purpose,
@@ -32,6 +34,7 @@ public class ConsentRevokedEvent extends DomainEvent {
             @JsonProperty("issuedBy")     Issuer issuedBy,
             @JsonProperty("occurredAt")   LocalDateTime occurredAt) {
         this.consentId    = consentId;
+        this.eventType  = eventType != null ? eventType : "ConsentRevoked";
         this.ownerId      = ownerId;
         this.dataCategory = dataCategory;
         this.purpose      = purpose;

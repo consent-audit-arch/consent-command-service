@@ -36,7 +36,6 @@ public class ConsentProjectionJpaEntity {
     @Column(name = "granted_at")
     private LocalDateTime grantedAt;
 
-
     @Column(name = "revoked_at")
     private LocalDateTime revokedAt;
 

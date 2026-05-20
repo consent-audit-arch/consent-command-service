@@ -3,6 +3,7 @@ package com.tcc.consent_command_service.application.services;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.ConsentAuthorizationRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.GrantConsentRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.RevokeConsentRequest;
+import com.tcc.consent_command_service.infrastructure.client.UserServiceClient;
 import com.tcc.consent_command_service.model.consent.entities.Consent;
 import com.tcc.consent_command_service.model.consent.enuns.DataCategory;
 import com.tcc.consent_command_service.model.consent.enuns.IssuerType;
@@ -31,9 +32,15 @@ public class ConsentService {
 
     private final DomainEventPublisher eventPublisher;
 
+    private final UserServiceClient userServiceClient;
+
 
     @Transactional
     public void grantConsent(GrantConsentRequest request) {
+        if (!userServiceClient.userExists(request.getOwnerId())) {
+            throw new IllegalArgumentException(
+                    "User " + request.getOwnerId() + " does not exist. Consent can only be registered for existing users.");
+        }
 
         Consent consent = consentRepository.findByOwnerId(request.getOwnerId());
 
@@ -55,6 +62,10 @@ public class ConsentService {
 
     @Transactional
     public void revokeConsent(RevokeConsentRequest request) {
+        if (!userServiceClient.userExists(request.getOwnerId())) {
+            throw new IllegalArgumentException(
+                    "User " + request.getOwnerId() + " does not exist. Consent can only be managed for existing users.");
+        }
 
         Consent consent = consentRepository.findByOwnerId(request.getOwnerId());
 

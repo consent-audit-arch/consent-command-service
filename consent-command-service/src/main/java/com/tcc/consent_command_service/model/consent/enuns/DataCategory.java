@@ -3,9 +3,9 @@ package com.tcc.consent_command_service.model.consent.enuns;
 import java.util.Arrays;
 
 public enum DataCategory {
-    PERSONAL_DATA("Dados Pessoais"),
-    CONTRACT_DATA("Dados Contratuais"),
-    FINANCIAL_DATA("Dados Financeiros");
+    PERSONAL_DATA("PERSONAL_DATA"),
+    CONTRACT_DATA("CONTRACT_DATA"),
+    FINANCIAL_DATA("FINANCIAL_DATA");
 
     private final String description;
 

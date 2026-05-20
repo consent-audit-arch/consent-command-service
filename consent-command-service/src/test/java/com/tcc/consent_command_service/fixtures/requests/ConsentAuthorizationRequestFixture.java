@@ -8,15 +8,15 @@ public class ConsentAuthorizationRequestFixture {
 
     public static ConsentAuthorizationRequest defaultValues() {
         return ConsentAuthorizationRequest.builder()
-                .dataCategory("Dados Pessoais")
-                .purposes(List.of("Promoção"))
+                .dataCategory("PERSONAL_DATA")
+                .purposes(List.of("PROMOTION"))
                 .build();
     }
 
     public static ConsentAuthorizationRequest defaultValuesTwoPurposes() {
         return ConsentAuthorizationRequest.builder()
-                .dataCategory("Dados Contratuais")
-                .purposes(List.of("Promoção", "Análise"))
+                .dataCategory("CONTRACT_DATA")
+                .purposes(List.of("PROMOTION", "ANALYTICS"))
                 .build();
     }
 }

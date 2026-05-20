@@ -3,10 +3,10 @@ package com.tcc.consent_command_service.model.consent.enuns;
 import java.util.Arrays;
 
 public enum Purpose {
-    PROMOTION("Promoção"),
-    BILLING("Cobrança"),
-    ANALYTICS("Análise"),
-    CUSTOMER_SERVICE("Atendimento");
+    PROMOTION("PROMOTION"),
+    BILLING("BILLING"),
+    ANALYTICS("ANALYTICS"),
+    CUSTOMER_SERVICE("CUSTOMER_SERVICE");
 
     private final String description;
 

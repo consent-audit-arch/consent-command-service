@@ -2,6 +2,7 @@ package com.tcc.consent_command_service.unit.application.service;
 
 import com.tcc.consent_command_service.application.services.ConsentService;
 import com.tcc.consent_command_service.fixtures.requests.GrantConsentRequestFixture;
+import com.tcc.consent_command_service.infrastructure.client.UserServiceClient;
 import com.tcc.consent_command_service.model.consent.entities.Consent;
 import com.tcc.consent_command_service.model.consent.events.DomainEventPublisher;
 import com.tcc.consent_command_service.model.consent.repositories.ConsentRepository;
@@ -30,11 +31,15 @@ class ConsentServiceTest {
     @Mock
     private DomainEventPublisher eventPublisher;
 
+    @Mock
+    private UserServiceClient userServiceClient;
+
     @InjectMocks
     private ConsentService consentService;
 
     @Test
     void shouldCreateNewConsentWhenOwnerHasNone() {
+        when(userServiceClient.userExists(100L)).thenReturn(true);
         when(consentRepository.findByOwnerId(100L)).thenReturn(null);
 
         consentService.grantConsent(GrantConsentRequestFixture.defaultValues());
@@ -45,6 +50,8 @@ class ConsentServiceTest {
 
     @Test
     void shouldReuseExistingConsentWhenOwnerAlreadyHasOne() {
+        when(userServiceClient.userExists(100L)).thenReturn(true);
+
         Consent existing = Consent.builder()
                 .consentId(UUID.randomUUID().toString())
                 .version(1L)

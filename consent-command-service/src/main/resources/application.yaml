@@ -51,6 +51,5 @@ tcc:
       purpose: X-Purpose
       data-subject-id: X-Data-Subject-Id
       data-subject-ids: X-Data-Subject-Ids
-      data-category: X-Data-Category
       data-categories: X-Data-Categories
       correlation-id: X-Correlation-Id

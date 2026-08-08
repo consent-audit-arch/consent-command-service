@@ -10,6 +10,7 @@ import com.tcc.consent_command_service.model.consent.enuns.Purpose;
 import com.tcc.consent_command_service.model.consent.events.ConsentGrantedEvent;
 import com.tcc.consent_command_service.model.consent.events.ConsentRevokedEvent;
 import com.tcc.consent_command_service.model.consent.events.DomainEvent;
+import com.tcc.consent_command_service.model.consent.events.UserDeactivatedEvent;
 import com.tcc.consent_command_service.model.consent.repositories.ConsentRepository;
 import com.tcc.consent_command_service.model.consent.valueObjects.ConsentAuthorization;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,9 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
                 ConsentEventJPAEntity entity = buildEntity(event, versionToSave);
                 trySave(entity);
             } else if (domainEvent instanceof ConsentRevokedEvent event) {
+                ConsentEventJPAEntity entity = buildEntity(event, versionToSave);
+                trySave(entity);
+            } else if (domainEvent instanceof UserDeactivatedEvent event) {
                 ConsentEventJPAEntity entity = buildEntity(event, versionToSave);
                 trySave(entity);
             }
@@ -159,6 +163,21 @@ public class ConsentJpaRepositoryImpl implements ConsentRepository {
                 .eventType("ConsentRevoked")
                 .dataCategory(event.getDataCategory().name())
                 .finality(event.getPurpose().name())
+                .payload(serializeToJson(event))
+                .issuedBy(serializeToJson(event.getIssuedBy()))
+                .occurredAt(event.getOccurredAt())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private ConsentEventJPAEntity buildEntity(UserDeactivatedEvent event, Long versionToSave) {
+        return ConsentEventJPAEntity.builder()
+                .streamId(event.getConsentId())
+                .version(versionToSave)
+                .userId(event.getOwnerId())
+                .eventType("UserDeactivated")
+                .dataCategory("SYSTEM")
+                .finality("DEACTIVATION")
                 .payload(serializeToJson(event))
                 .issuedBy(serializeToJson(event.getIssuedBy()))
                 .occurredAt(event.getOccurredAt())

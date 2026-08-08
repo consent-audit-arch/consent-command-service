@@ -47,4 +47,8 @@ public class ConsentProjectionJpaEntity {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "user_active", nullable = false)
+    @Builder.Default
+    private Boolean userActive = true;
 }

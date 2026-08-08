@@ -1,8 +1,10 @@
 package com.tcc.consent_command_service.application.controllers;
 
+import com.tcc.consent_command_service.application.controllers.DTOs.requests.DeactivateConsentRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.GrantConsentRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.RevokeConsentRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.responses.ConsentResponse;
+import com.tcc.consent_command_service.application.controllers.DTOs.responses.DeactivateConsentResponse;
 import com.tcc.consent_command_service.application.services.ConsentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,17 @@ public class ConsentCommand {
         log.info("Granted access for user: {}", request.getOwnerId());
 
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/deactivate")
+    public ResponseEntity<DeactivateConsentResponse> deactivate(
+            @Validated @RequestBody DeactivateConsentRequest request) {
+
+        log.info("Received deactivate request for user: {}", request.getOwnerId());
+        DeactivateConsentResponse response = consentService.deactivateConsent(request);
+        log.info("Deactivated user {}: {} consents revoked", request.getOwnerId(), response.consentsRevoked());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{ownerId}/revoke")

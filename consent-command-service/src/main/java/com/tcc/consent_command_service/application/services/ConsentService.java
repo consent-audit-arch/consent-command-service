@@ -1,9 +1,13 @@
 package com.tcc.consent_command_service.application.services;
 
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.ConsentAuthorizationRequest;
+import com.tcc.consent_command_service.application.controllers.DTOs.requests.DeactivateConsentRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.GrantConsentRequest;
 import com.tcc.consent_command_service.application.controllers.DTOs.requests.RevokeConsentRequest;
+import com.tcc.consent_command_service.application.controllers.DTOs.responses.DeactivateConsentResponse;
 import com.tcc.consent_command_service.infrastructure.client.UserServiceClient;
+import com.tcc.consent_command_service.infrastructure.persistence.entities.ConsentProjectionJpaEntity;
+import com.tcc.consent_command_service.infrastructure.persistence.repository.JPARepository.ConsentProjectionJpaRepository;
 import com.tcc.consent_command_service.model.consent.entities.Consent;
 import com.tcc.consent_command_service.model.consent.enuns.DataCategory;
 import com.tcc.consent_command_service.model.consent.enuns.IssuerType;
@@ -29,11 +33,9 @@ import java.util.UUID;
 public class ConsentService {
 
     private final ConsentRepository consentRepository;
-
     private final DomainEventPublisher eventPublisher;
-
     private final UserServiceClient userServiceClient;
-
+    private final ConsentProjectionJpaRepository projectionRepository;
 
     @Transactional
     public void grantConsent(GrantConsentRequest request) {
@@ -42,8 +44,9 @@ public class ConsentService {
                     "User " + request.getOwnerId() + " does not exist. Consent can only be registered for existing users.");
         }
 
-        Consent consent = consentRepository.findByOwnerId(request.getOwnerId());
+        checkUserNotDeactivated(request.getOwnerId());
 
+        Consent consent = consentRepository.findByOwnerId(request.getOwnerId());
         if (consent == null) {
             consent = createNewConsentFromGrant(request);
         }
@@ -51,13 +54,9 @@ public class ConsentService {
         grantConsents(request, consent);
 
         List<DomainEvent> events = consent.getDomainEvents();
-
         consentRepository.saveEvents(events, consent.getVersion());
-
         eventPublisher.publishAll(events);
-
         consent.clearNewDomainEvents();
-
     }
 
     @Transactional
@@ -67,8 +66,9 @@ public class ConsentService {
                     "User " + request.getOwnerId() + " does not exist. Consent can only be managed for existing users.");
         }
 
-        Consent consent = consentRepository.findByOwnerId(request.getOwnerId());
+        checkUserNotDeactivated(request.getOwnerId());
 
+        Consent consent = consentRepository.findByOwnerId(request.getOwnerId());
         if (consent == null) {
             consent = createNewConsentFromRevoke(request);
         }
@@ -76,13 +76,57 @@ public class ConsentService {
         revokeConsents(request, consent);
 
         List<DomainEvent> events = consent.getDomainEvents();
-
         consentRepository.saveEvents(events, consent.getVersion());
-
         eventPublisher.publishAll(events);
+        consent.clearNewDomainEvents();
+    }
 
+    @Transactional
+    public DeactivateConsentResponse deactivateConsent(DeactivateConsentRequest request) {
+        Consent consent = consentRepository.findByOwnerId(request.getOwnerId());
+        if (consent == null) {
+            throw new IllegalArgumentException(
+                    "No consent records found for user " + request.getOwnerId());
+        }
+
+        if (!hasActiveAuthorizations(consent)) {
+            throw new IllegalStateException(
+                    "User " + request.getOwnerId() + " has already been deactivated.");
+        }
+
+        Issuer systemIssuer = Issuer.builder()
+                .id(request.getIssuedBy().getId())
+                .issuer(IssuerType.valueOf(request.getIssuedBy().getIssuer()))
+                .build();
+
+        int revokedCount = consent.deactivateUser("USER_ACCOUNT_DEACTIVATED", systemIssuer);
+
+        List<DomainEvent> events = consent.getDomainEvents();
+        consentRepository.saveEvents(events, consent.getVersion());
+        eventPublisher.publishAll(events);
         consent.clearNewDomainEvents();
 
+        log.info("Deactivated user {}: {} consents revoked", request.getOwnerId(), revokedCount);
+
+        return DeactivateConsentResponse.builder()
+                .ownerId(request.getOwnerId())
+                .consentsRevoked(revokedCount)
+                .build();
+    }
+
+    private boolean hasActiveAuthorizations(Consent consent) {
+        return consent.getAuthorizations() != null && !consent.getAuthorizations().isEmpty();
+    }
+
+    private void checkUserNotDeactivated(Long ownerId) {
+        List<ConsentProjectionJpaEntity> projections = projectionRepository.findByUserId(ownerId);
+        if (!projections.isEmpty()) {
+            boolean deactivated = projections.stream()
+                    .anyMatch(p -> Boolean.FALSE.equals(p.getUserActive()));
+            if (deactivated) {
+                throw new IllegalStateException("User account is deactivated");
+            }
+        }
     }
 
     private Consent createNewConsentFromGrant(GrantConsentRequest request) {
@@ -110,14 +154,10 @@ public class ConsentService {
     private void revokeConsents(RevokeConsentRequest request, Consent consent) {
         for (ConsentAuthorizationRequest authorization : request.getAuthorizations()) {
             DataCategory category = DataCategory.of(authorization.getDataCategory());
-
             for (String purposeRequest : authorization.getPurposes()) {
                 Purpose purpose = Purpose.of(purposeRequest);
-
                 consent.revokeAuthorization(
-                        category,
-                        purpose,
-                        request.getReason(),
+                        category, purpose, request.getReason(),
                         Issuer.builder()
                                 .id(request.getIssuedBy().getId())
                                 .issuer(IssuerType.valueOf(request.getIssuedBy().getIssuer()))
@@ -130,14 +170,10 @@ public class ConsentService {
     private void grantConsents(GrantConsentRequest request, Consent consent) {
         for (ConsentAuthorizationRequest authorization : request.getAuthorizations()) {
             DataCategory category = DataCategory.of(authorization.getDataCategory());
-
             for (String purposeRequest : authorization.getPurposes()) {
                 Purpose purpose = Purpose.of(purposeRequest);
-
                 consent.grantAuthorization(
-                        category,
-                        purpose,
-                        request.getLegalBasis(),
+                        category, purpose, request.getLegalBasis(),
                         Issuer.builder()
                                 .id(request.getIssuedBy().getId())
                                 .issuer(IssuerType.valueOf(request.getIssuedBy().getIssuer()))
@@ -146,5 +182,4 @@ public class ConsentService {
             }
         }
     }
-
 }

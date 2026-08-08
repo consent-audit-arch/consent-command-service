@@ -8,10 +8,12 @@ import com.tcc.consent_command_service.model.consent.events.ConsentGrantedEvent;
 import com.tcc.consent_command_service.model.consent.events.ConsentRevokedEvent;
 import com.tcc.consent_command_service.model.consent.events.DomainEvent;
 import com.tcc.consent_command_service.model.consent.events.DomainEventHandler;
+import com.tcc.consent_command_service.model.consent.events.UserDeactivatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +28,8 @@ public class ProjectionHandler implements DomainEventHandler<DomainEvent> {
             handleGranted(e);
         } else if (event instanceof ConsentRevokedEvent e) {
             handleRevoked(e);
+        } else if (event instanceof UserDeactivatedEvent e) {
+            handleDeactivated(e);
         }
     }
 
@@ -67,6 +71,15 @@ public class ProjectionHandler implements DomainEventHandler<DomainEvent> {
                         .updatedAt(LocalDateTime.now())
                         .build())
         );
+    }
+
+    private void handleDeactivated(UserDeactivatedEvent event) {
+        List<ConsentProjectionJpaEntity> projections = projectionRepository.findByUserId(event.getOwnerId());
+        for (ConsentProjectionJpaEntity p : projections) {
+            p.setUserActive(false);
+            p.setUpdatedAt(LocalDateTime.now());
+        }
+        projectionRepository.saveAll(projections);
     }
 
     private void handleRevoked(ConsentRevokedEvent event) {

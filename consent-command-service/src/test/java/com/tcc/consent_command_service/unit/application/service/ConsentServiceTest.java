@@ -3,6 +3,7 @@ package com.tcc.consent_command_service.unit.application.service;
 import com.tcc.consent_command_service.application.services.ConsentService;
 import com.tcc.consent_command_service.fixtures.requests.GrantConsentRequestFixture;
 import com.tcc.consent_command_service.infrastructure.client.UserServiceClient;
+import com.tcc.consent_command_service.infrastructure.persistence.repository.JPARepository.ConsentProjectionJpaRepository;
 import com.tcc.consent_command_service.model.consent.entities.Consent;
 import com.tcc.consent_command_service.model.consent.events.DomainEventPublisher;
 import com.tcc.consent_command_service.model.consent.repositories.ConsentRepository;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,12 +37,16 @@ class ConsentServiceTest {
     @Mock
     private UserServiceClient userServiceClient;
 
+    @Mock
+    private ConsentProjectionJpaRepository projectionRepository;
+
     @InjectMocks
     private ConsentService consentService;
 
     @Test
     void shouldCreateNewConsentWhenOwnerHasNone() {
         when(userServiceClient.userExists(100L)).thenReturn(true);
+        when(projectionRepository.findByUserId(100L)).thenReturn(List.of());
         when(consentRepository.findByOwnerId(100L)).thenReturn(null);
 
         consentService.grantConsent(GrantConsentRequestFixture.defaultValues());
@@ -51,6 +58,7 @@ class ConsentServiceTest {
     @Test
     void shouldReuseExistingConsentWhenOwnerAlreadyHasOne() {
         when(userServiceClient.userExists(100L)).thenReturn(true);
+        when(projectionRepository.findByUserId(100L)).thenReturn(List.of());
 
         Consent existing = Consent.builder()
                 .consentId(UUID.randomUUID().toString())

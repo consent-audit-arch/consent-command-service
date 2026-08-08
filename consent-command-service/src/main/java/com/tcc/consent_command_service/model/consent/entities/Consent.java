@@ -5,6 +5,7 @@ import com.tcc.consent_command_service.model.consent.enuns.Purpose;
 import com.tcc.consent_command_service.model.consent.events.ConsentGrantedEvent;
 import com.tcc.consent_command_service.model.consent.events.ConsentRevokedEvent;
 import com.tcc.consent_command_service.model.consent.events.DomainEvent;
+import com.tcc.consent_command_service.model.consent.events.UserDeactivatedEvent;
 import com.tcc.consent_command_service.model.consent.valueObjects.ConsentAuthorization;
 import com.tcc.consent_command_service.model.consent.valueObjects.Issuer;
 import lombok.*;
@@ -77,6 +78,24 @@ public class Consent {
                 this.consentId, "ConsentRevoked", this.ownerId, dataCategory, purpose,
                 reason, issuedBy, LocalDateTime.now()
         ));
+    }
+
+    public int deactivateUser(String reason, Issuer issuedBy) {
+        int countBefore = this.domainEvents.size();
+
+        Set<ConsentAuthorization> activeAuths = new HashSet<>(this.authorizations);
+        for (ConsentAuthorization auth : activeAuths) {
+            for (Purpose purpose : auth.purposes()) {
+                revokeAuthorization(auth.dataCategory(), purpose, reason, issuedBy);
+            }
+        }
+
+        this.domainEvents.add(new UserDeactivatedEvent(
+                this.consentId, "UserDeactivated", this.ownerId,
+                reason, issuedBy, LocalDateTime.now()
+        ));
+
+        return this.domainEvents.size() - countBefore - 1;
     }
 
     public void clearNewDomainEvents() {

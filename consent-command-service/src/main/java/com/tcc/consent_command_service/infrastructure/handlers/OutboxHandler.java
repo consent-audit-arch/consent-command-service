@@ -8,6 +8,7 @@ import com.tcc.consent_command_service.model.consent.events.ConsentGrantedEvent;
 import com.tcc.consent_command_service.model.consent.events.ConsentRevokedEvent;
 import com.tcc.consent_command_service.model.consent.events.DomainEvent;
 import com.tcc.consent_command_service.model.consent.events.DomainEventHandler;
+import com.tcc.consent_command_service.model.consent.events.UserDeactivatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,8 @@ public class OutboxHandler implements DomainEventHandler<DomainEvent> {
             save(e.getConsentId(), "ConsentGranted", e);
         } else if (event instanceof ConsentRevokedEvent e) {
             save(e.getConsentId(), "ConsentRevoked", e);
+        } else if (event instanceof UserDeactivatedEvent e) {
+            save(e.getConsentId(), "UserDeactivated", e);
         }
     }
 
